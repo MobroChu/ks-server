@@ -1,6 +1,6 @@
 {
 	"name": "ks-server",
-	"version": "2.0.0",
+	"version": "1.0.1",
 	"main": "index.js",
 	"license": "MIT",
 	"author": "mobro",
@@ -9,12 +9,12 @@
 	},
 	"dependencies": {
 		"commander": "^2.19.0",
-		"ejs": "^2.6.1"
-	},
-	"devDependencies": {
+		"ejs": "^2.6.1",
 		"debug": "^4.1.0",
 		"chalk": "^2.4.1",
 		"mz": "^2.7.0"
+	},
+	"devDependencies": {
 	},
 	"keywords": [
 		"ks-server",
