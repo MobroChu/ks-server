@@ -13,10 +13,12 @@
 -o, --host <n>	# 配置主机名 
 ```
 
-### 使用
+#### 使用
 ```bash
 npm i -g ks-server
 
 ks-server -p 10086 -d d: -o localhost
-
 ```
+
+#### 环境
+nodejs >= 11.3.0
