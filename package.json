@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"author": "mobro",
 	"bin": {
-		"mobro-server": "./bin/www.js"
+		"ks-server": "./bin/www.js"
 	},
 	"dependencies": {
 		"commander": "^2.19.0",
@@ -15,5 +15,11 @@
 		"debug": "^4.1.0",
 		"chalk": "^2.4.1",
 		"mz": "^2.7.0"
-	}
+	},
+	"keywords": [
+		"ks-server",
+		"http-server",
+		"static-server",
+		"http"
+	]
 }
