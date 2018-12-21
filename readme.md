@@ -12,3 +12,11 @@
 -d, --dir <n>	# 配置所起服务的根路径
 -o, --host <n>	# 配置主机名 
 ```
+
+### 使用
+```bash
+npm i -g ks-server
+
+ks-server -p 10086 -d d: -o localhost
+
+```
