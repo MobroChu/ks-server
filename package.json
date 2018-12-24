@@ -8,10 +8,11 @@
 		"ks-server": "./bin/www.js"
 	},
 	"dependencies": {
-		"commander": "^2.19.0",
-		"ejs": "^2.6.1",
-		"debug": "^4.1.0",
 		"chalk": "^2.4.1",
+		"commander": "^2.19.0",
+		"debug": "^4.1.0",
+		"ejs": "^2.6.1",
+		"mime": "^2.4.0",
 		"mz": "^2.7.0"
 	},
 	"devDependencies": {},

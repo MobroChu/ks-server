@@ -25,7 +25,7 @@ let argvs = commander
 	.parse(process.argv);
 
 
-parser = { ...parser, ...argvs };
+parser = Object.assign(parser, argvs);
 
 let ser = new Server(parser);
 ser.start();	// 启动一个服务
