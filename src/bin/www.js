@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 
 // www.js
+require('babel-polyfill')
 const commander = require('commander');
-const package = require('../package.json');
+const pkg = require('../../package.json');
 const Server = require('../server/index.js')
 
 // 设置一个默认的值
@@ -18,7 +19,7 @@ commander.on('--help', function () {
 	console.log("  my-server -p 3000 --host localhost")
 })
 let argvs = commander
-	.version(package.version)
+	.version(pkg.version)
 	.option('-p, --port <n>', 'server port')
 	.option('-o, --host <n>', 'server hostname')
 	.option('-d, --dir <n>', 'server dir')
