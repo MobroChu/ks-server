@@ -18,7 +18,7 @@ var zlib = require('zlib');
 // 第三方模块
 var mime = require('mime');
 var chalk = require('chalk'); // 粉笔
-var debugPkg = require('debug'); // 环境变量
+var debug = require('debug')('dev'); // 环境变量
 var ejs = require('ejs'); // 模板 ejs、jade、handlebar
 var fs = require('mz/fs');
 
@@ -38,13 +38,6 @@ var Server = function () {
 	}
 
 	_createClass(Server, [{
-		key: 'debug',
-		value: function debug(x) {
-			// debugPkg(this.config.env)(x)
-			console.log(x, '999');
-			console.log(debugPkg, '000------');
-		}
-	}, {
 		key: 'handleRequest',
 		value: function () {
 			var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(req, res) {
@@ -214,7 +207,7 @@ var Server = function () {
 		key: 'sendError',
 		value: function sendError(e, req, res) {
 			res.statusCode = 404;
-			this.debug(chalk.red(JSON.stringify(e)));
+			debug(chalk.red(JSON.stringify(e)));
 			res.end('Not found');
 		}
 	}, {
@@ -227,11 +220,11 @@ var Server = function () {
 
 
 			server.listen(port, host, function () {
-				this.debug('http://' + chalk.yellow(host) + ':' + chalk.red(port) + ' started!');
+				debug('http://' + chalk.yellow(host) + ':' + chalk.red(port) + ' started!');
 			});
 
 			server.on('error', function (err) {
-				this.debug(err.errno, '===');
+				debug(err.errno, '===');
 			});
 		}
 	}]);
