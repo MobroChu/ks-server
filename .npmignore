@@ -2,6 +2,6 @@ node_modules
 src
 .babelrc
 .gitignore
-.package-lock.json
-.yarn.lock
 .vscode
+package-lock.json
+yarn.lock

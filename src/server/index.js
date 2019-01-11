@@ -34,9 +34,11 @@ class Server {
 			if (statObj.isDirectory()) {
 				let indexHtml = path.join(realPath, 'index.html');
 				try {
-					let s = await fs.access(indexHtml);
+          let s = await fs.access(indexHtml);
+          console.log('sssss', s)
 					this.sendFile(req, res, null, indexHtml);
 				} catch (e) {
+          console.log(e, '0000')
 					let dirs = await fs.readdir(realPath);
 					res.end(ejs.render(this.tmpl, {
 						dirs: dirs.map(item => ({
@@ -67,14 +69,6 @@ class Server {
 			return fs.createReadStream(realPath).pipe(zip).pipe(res);
 		}
 
-		// 断点续传
-		if (req.url === '/download') {
-			if (this.range(req, res, statObj, realPath)) {
-
-			} else {
-
-			}
-		}
 		fs.createReadStream(realPath).pipe(res);
 	}
 	cache (req, res, statObj) {
@@ -91,7 +85,16 @@ class Server {
 		const ifModifiedSince = req.headers['if-modified-since'];
 		const ifNoneMatch = req.headers['if-none-match'];
 
-		console.log(ifModifiedSince, ifNoneMatch);
+    console.log(ifModifiedSince, ifNoneMatch);
+    if (ifModifiedSince && ifNoneMatch) {
+      if (ifModifiedSince === ctime && ifNoneMatch === etag) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
 	}
 	range (req, res, statObj, realPath) {
 		const range = req.headers['range'];
@@ -129,7 +132,11 @@ class Server {
 		});
 
 		server.on('error', function (err) {
-			debug(err.errno, '===');
+      debug(err.errno, '===');
+      if (err.errno === 'EADDRINUSE') {
+        port ++;
+        server.listen(port);
+      }
 		})
 	}
 }
