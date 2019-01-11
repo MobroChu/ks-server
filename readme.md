@@ -32,5 +32,5 @@ set DEBUG=dev (windows 环境)
 ```
 
 #### 环境
-nodejs >= 11.3.0 (开发)
+nodejs >= 11.3.0 (开发)  
 nodejs >= 6.4.0 (使用)
