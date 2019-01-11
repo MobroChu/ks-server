@@ -20,5 +20,14 @@ npm i -g ks-server
 ks-server -p 10086 -d d: -o localhost
 ```
 
+#### 须知
+默认端口：3000
+默认目录：当前目录
+打印日志的话，需要运行
+```bash
+export DEBUG=dev (os 环境)
+
+```
+
 #### 环境
 nodejs >= 11.3.0

@@ -13,7 +13,7 @@ const ejs = require('ejs');	// 模板 ejs、jade、handlebar
 const fs = require('mz/fs');
 const {readFileSync} = require('fs');
 
-const tmpl = readFileSync(path.join(__dirname, 'template.html'), 'utf8');
+const tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
 // debug('hello')
 
@@ -78,7 +78,6 @@ class Server {
 		fs.createReadStream(realPath).pipe(res);
 	}
 	cache (req, res, statObj) {
-		console.log(res, '===')
 		// 设置强制缓存
 		res.setHeader("Cache-Control", "max-age=30");
 		res.setHeader("Expires", new Date(Date.now() + 30 * 1000).toGMTString());	
