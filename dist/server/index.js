@@ -68,7 +68,7 @@ var Server = function () {
 								statObj = _context.sent;
 
 								if (!statObj.isDirectory()) {
-									_context.next = 26;
+									_context.next = 28;
 									break;
 								}
 
@@ -80,17 +80,20 @@ var Server = function () {
 							case 14:
 								s = _context.sent;
 
+								console.log('sssss', s);
 								this.sendFile(req, res, null, indexHtml);
-								_context.next = 24;
+								_context.next = 26;
 								break;
 
-							case 18:
-								_context.prev = 18;
+							case 19:
+								_context.prev = 19;
 								_context.t0 = _context['catch'](11);
-								_context.next = 22;
+
+								console.log(_context.t0, '0000');
+								_context.next = 24;
 								return fs.readdir(realPath);
 
-							case 22:
+							case 24:
 								dirs = _context.sent;
 
 								res.end(ejs.render(this.tmpl, {
@@ -102,30 +105,30 @@ var Server = function () {
 									})
 								}));
 
-							case 24:
-								_context.next = 27;
+							case 26:
+								_context.next = 29;
 								break;
 
-							case 26:
+							case 28:
 								// 如果是文件的话，就直接返回这个文件内容
 								this.sendFile(req, res, statObj, realPath);
 
-							case 27:
-								_context.next = 32;
+							case 29:
+								_context.next = 34;
 								break;
 
-							case 29:
-								_context.prev = 29;
+							case 31:
+								_context.prev = 31;
 								_context.t1 = _context['catch'](5);
 
 								this.sendError(_context.t1, req, res);
 
-							case 32:
+							case 34:
 							case 'end':
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[5, 29], [11, 18]]);
+				}, _callee, this, [[5, 31], [11, 19]]);
 			}));
 
 			function handleRequest(_x, _x2) {
@@ -150,10 +153,6 @@ var Server = function () {
 				return fs.createReadStream(realPath).pipe(zip).pipe(res);
 			}
 
-			// 断点续传
-			if (req.url === '/download') {
-				if (this.range(req, res, statObj, realPath)) {} else {}
-			}
 			fs.createReadStream(realPath).pipe(res);
 		}
 	}, {
@@ -173,6 +172,15 @@ var Server = function () {
 			var ifNoneMatch = req.headers['if-none-match'];
 
 			console.log(ifModifiedSince, ifNoneMatch);
+			if (ifModifiedSince && ifNoneMatch) {
+				if (ifModifiedSince === ctime && ifNoneMatch === etag) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
 		}
 	}, {
 		key: 'range',
@@ -225,6 +233,10 @@ var Server = function () {
 
 			server.on('error', function (err) {
 				debug(err.errno, '===');
+				if (err.errno === 'EADDRINUSE') {
+					port++;
+					server.listen(port);
+				}
 			});
 		}
 	}]);
