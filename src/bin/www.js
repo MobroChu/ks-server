@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 // www.js
-require('babel-polyfill')
+require('babel-polyfill');
 const commander = require('commander');
 const pkg = require('../../package.json');
 const Server = require('../server/index.js')

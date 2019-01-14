@@ -8,6 +8,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+require('babel-polyfill');
 var http = require('http');
 // const fs = require('fs');
 var url = require('url');
