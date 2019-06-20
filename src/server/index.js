@@ -6,17 +6,18 @@ const path = require('path');
 const util = require('util');
 const zlib = require('zlib');
 
+const NODE_LOG_ENV = "*"; // 设置日志输入的环境
+
 // 第三方模块
 const mime = require('mime');
 const chalk = require('chalk');	// 粉笔
-const debug = require('debug')('dev');	// 环境变量
+const debug = require('debug')(NODE_LOG_ENV);	// 环境变量
 const ejs = require('ejs');	// 模板 ejs、jade、handlebar
 const fs = require('mz/fs');
 const {readFileSync} = require('fs');
 
 const tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
-// debug('hello')
 
 class Server {
 	constructor (config) {
@@ -34,12 +35,11 @@ class Server {
 			// 如果是一个文件夹的话
 			if (statObj.isDirectory()) {
 				let indexHtml = path.join(realPath, 'index.html');
+				statObj = await fs.stat(indexHtml);
 				try {
-          let s = await fs.access(indexHtml);
-          console.log('sssss', s)
-					this.sendFile(req, res, null, indexHtml);
+          await fs.access(indexHtml);
+					this.sendFile(req, res, statObj, indexHtml);
 				} catch (e) {
-          console.log(e, '0000')
 					let dirs = await fs.readdir(realPath);
 					res.end(ejs.render(this.tmpl, {
 						dirs: dirs.map(item => ({
@@ -57,8 +57,9 @@ class Server {
 		}
 	}
 	sendFile (req, res, statObj, realPath) {
-		res.setHeader('Content-Type', mime.getType(realPath) + ";charset=utf8")
-
+		const mimeType = mime.getType(realPath);
+		res.setHeader('Content-Type', mimeType + ";charset=utf8");
+		debug(`mime-type: ${chalk.green(mimeType)} => ${realPath}`);
 		// 304 缓存
 		if (this.cache(req, res, statObj)) {
 			return res.statusCode = 304, res.end();
@@ -74,8 +75,9 @@ class Server {
 	}
 	cache (req, res, statObj) {
 		// 设置强制缓存
-		res.setHeader("Cache-Control", "max-age=30");
-		res.setHeader("Expires", new Date(Date.now() + 30 * 1000).toGMTString());	
+		const expires = 60 * 10; // 过期时间 秒
+		res.setHeader("Cache-Control", `max-age=${expires}`);
+		res.setHeader("Expires", new Date(Date.now() + expires * 1000).toGMTString());	
 
 		let ctime = statObj.ctime.toLocaleString();
 		let etag = ctime + '_' + statObj.size
@@ -86,7 +88,6 @@ class Server {
 		const ifModifiedSince = req.headers['if-modified-since'];
 		const ifNoneMatch = req.headers['if-none-match'];
 
-    console.log(ifModifiedSince, ifNoneMatch);
     if (ifModifiedSince && ifNoneMatch) {
       if (ifModifiedSince === ctime && ifNoneMatch === etag) {
         return true;
@@ -121,7 +122,7 @@ class Server {
 	}
 	sendError (e, req, res) {
 		res.statusCode = 404;
-		debug(chalk.red(JSON.stringify(e)));
+		debug(`${chalk.red('sendError: ')}${JSON.stringify(e)}`);
 		res.end('Not found');
 	}
 	start () {
@@ -129,11 +130,11 @@ class Server {
 		let {port, host} = this.config;
 
 		server.listen(port, host, function () {
-			debug(`http://${chalk.yellow(host)}:${chalk.red(port)} started!`)
+			debug(chalk.white(`http://${chalk.yellow(host)}:${chalk.red(port)} started!`));
 		});
 
 		server.on('error', function (err) {
-      debug(err.errno, '===');
+      debug(`error with ${chalk.yellow(err.errno)}`);
       if (err.errno === 'EADDRINUSE') {
         port ++;
         server.listen(port);

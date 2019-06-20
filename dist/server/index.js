@@ -16,10 +16,12 @@ var path = require('path');
 var util = require('util');
 var zlib = require('zlib');
 
+var NODE_LOG_ENV = "*"; // 设置日志输入的环境
+
 // 第三方模块
 var mime = require('mime');
 var chalk = require('chalk'); // 粉笔
-var debug = require('debug')('dev'); // 环境变量
+var debug = require('debug')(NODE_LOG_ENV); // 环境变量
 var ejs = require('ejs'); // 模板 ejs、jade、handlebar
 var fs = require('mz/fs');
 
@@ -28,7 +30,6 @@ var _require = require('fs'),
 
 var tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
-// debug('hello')
 
 var Server = function () {
 	function Server(config) {
@@ -42,7 +43,7 @@ var Server = function () {
 		key: 'handleRequest',
 		value: function () {
 			var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(req, res) {
-				var dir, _url$parse, pathname, realPath, statObj, indexHtml, s, dirs;
+				var dir, _url$parse, pathname, realPath, statObj, indexHtml, dirs;
 
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -74,23 +75,23 @@ var Server = function () {
 								}
 
 								indexHtml = path.join(realPath, 'index.html');
-								_context.prev = 11;
-								_context.next = 14;
+								_context.next = 13;
+								return fs.stat(indexHtml);
+
+							case 13:
+								statObj = _context.sent;
+								_context.prev = 14;
+								_context.next = 17;
 								return fs.access(indexHtml);
 
-							case 14:
-								s = _context.sent;
-
-								console.log('sssss', s);
-								this.sendFile(req, res, null, indexHtml);
+							case 17:
+								this.sendFile(req, res, statObj, indexHtml);
 								_context.next = 26;
 								break;
 
-							case 19:
-								_context.prev = 19;
-								_context.t0 = _context['catch'](11);
-
-								console.log(_context.t0, '0000');
+							case 20:
+								_context.prev = 20;
+								_context.t0 = _context['catch'](14);
 								_context.next = 24;
 								return fs.readdir(realPath);
 
@@ -129,7 +130,7 @@ var Server = function () {
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[5, 31], [11, 19]]);
+				}, _callee, this, [[5, 31], [14, 20]]);
 			}));
 
 			function handleRequest(_x, _x2) {
@@ -141,8 +142,9 @@ var Server = function () {
 	}, {
 		key: 'sendFile',
 		value: function sendFile(req, res, statObj, realPath) {
-			res.setHeader('Content-Type', mime.getType(realPath) + ";charset=utf8");
-
+			var mimeType = mime.getType(realPath);
+			res.setHeader('Content-Type', mimeType + ";charset=utf8");
+			debug('mime-type: ' + chalk.green(mimeType) + ' => ' + realPath);
 			// 304 缓存
 			if (this.cache(req, res, statObj)) {
 				return res.statusCode = 304, res.end();
@@ -160,8 +162,9 @@ var Server = function () {
 		key: 'cache',
 		value: function cache(req, res, statObj) {
 			// 设置强制缓存
-			res.setHeader("Cache-Control", "max-age=30");
-			res.setHeader("Expires", new Date(Date.now() + 30 * 1000).toGMTString());
+			var expires = 60 * 10; // 过期时间 秒
+			res.setHeader("Cache-Control", 'max-age=' + expires);
+			res.setHeader("Expires", new Date(Date.now() + expires * 1000).toGMTString());
 
 			var ctime = statObj.ctime.toLocaleString();
 			var etag = ctime + '_' + statObj.size;
@@ -172,7 +175,6 @@ var Server = function () {
 			var ifModifiedSince = req.headers['if-modified-since'];
 			var ifNoneMatch = req.headers['if-none-match'];
 
-			console.log(ifModifiedSince, ifNoneMatch);
 			if (ifModifiedSince && ifNoneMatch) {
 				if (ifModifiedSince === ctime && ifNoneMatch === etag) {
 					return true;
@@ -216,7 +218,7 @@ var Server = function () {
 		key: 'sendError',
 		value: function sendError(e, req, res) {
 			res.statusCode = 404;
-			debug(chalk.red(JSON.stringify(e)));
+			debug('' + chalk.red('sendError: ') + JSON.stringify(e));
 			res.end('Not found');
 		}
 	}, {
@@ -229,11 +231,11 @@ var Server = function () {
 
 
 			server.listen(port, host, function () {
-				debug('http://' + chalk.yellow(host) + ':' + chalk.red(port) + ' started!');
+				debug(chalk.white('http://' + chalk.yellow(host) + ':' + chalk.red(port) + ' started!'));
 			});
 
 			server.on('error', function (err) {
-				debug(err.errno, '===');
+				debug('error with ' + chalk.yellow(err.errno));
 				if (err.errno === 'EADDRINUSE') {
 					port++;
 					server.listen(port);
