@@ -4,6 +4,8 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -15,13 +17,15 @@ var url = require('url');
 var path = require('path');
 var util = require('util');
 var zlib = require('zlib');
+var os = require('os');
 
 var NODE_LOG_ENV = "*"; // 设置日志输入的环境
 
 // 第三方模块
 var mime = require('mime');
 var chalk = require('chalk'); // 粉笔
-var debug = require('debug')(NODE_LOG_ENV); // 环境变量
+// const debug = require('debug')(NODE_LOG_ENV);	// 环境变量
+var debug = console.log;
 var ejs = require('ejs'); // 模板 ejs、jade、handlebar
 var fs = require('mz/fs');
 
@@ -30,6 +34,20 @@ var _require = require('fs'),
 
 var tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
+
+var getIPv4s = function getIPv4s() {
+	var networkInterfaces = os.networkInterfaces();
+	var interfaces = Reflect.ownKeys(networkInterfaces);
+	var ips = [];
+	interfaces.forEach(function (item) {
+		Reflect.get(networkInterfaces, item).forEach(function (ipItem) {
+			if (ipItem.family === 'IPv4') {
+				ips.push(ipItem);
+			}
+		});
+	});
+	return ips;
+};
 
 var Server = function () {
 	function Server(config) {
@@ -43,7 +61,7 @@ var Server = function () {
 		key: 'handleRequest',
 		value: function () {
 			var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(req, res) {
-				var dir, _url$parse, pathname, realPath, statObj, indexHtml, dirs;
+				var dir, _url$parse, pathname, realPath, statObj, indexHtml, dirs, faviconPath;
 
 				return regeneratorRuntime.wrap(function _callee$(_context) {
 					while (1) {
@@ -53,49 +71,40 @@ var Server = function () {
 								dir = this.config.dir;
 								_url$parse = url.parse(req.url), pathname = _url$parse.pathname;
 								realPath = encodeURI(path.join(dir, pathname));
-
-								if (!(pathname === '/favicon.ico')) {
-									_context.next = 5;
-									break;
-								}
-
-								return _context.abrupt('return', this.sendError('没有favicon.ico资源', req, res));
-
-							case 5:
-								_context.prev = 5;
-								_context.next = 8;
+								_context.prev = 3;
+								_context.next = 6;
 								return fs.stat(realPath);
 
-							case 8:
+							case 6:
 								statObj = _context.sent;
 
 								if (!statObj.isDirectory()) {
-									_context.next = 28;
+									_context.next = 26;
 									break;
 								}
 
+								_context.prev = 8;
 								indexHtml = path.join(realPath, 'index.html');
-								_context.next = 13;
+								_context.next = 12;
 								return fs.stat(indexHtml);
 
-							case 13:
+							case 12:
 								statObj = _context.sent;
-								_context.prev = 14;
-								_context.next = 17;
+								_context.next = 15;
 								return fs.access(indexHtml);
 
-							case 17:
+							case 15:
 								this.sendFile(req, res, statObj, indexHtml);
-								_context.next = 26;
+								_context.next = 24;
 								break;
 
-							case 20:
-								_context.prev = 20;
-								_context.t0 = _context['catch'](14);
-								_context.next = 24;
+							case 18:
+								_context.prev = 18;
+								_context.t0 = _context['catch'](8);
+								_context.next = 22;
 								return fs.readdir(realPath);
 
-							case 24:
+							case 22:
 								dirs = _context.sent;
 
 								res.end(ejs.render(this.tmpl, {
@@ -107,30 +116,48 @@ var Server = function () {
 									})
 								}));
 
-							case 26:
-								_context.next = 29;
+							case 24:
+								_context.next = 27;
 								break;
 
-							case 28:
+							case 26:
 								// 如果是文件的话，就直接返回这个文件内容
 								this.sendFile(req, res, statObj, realPath);
 
-							case 29:
-								_context.next = 34;
+							case 27:
+								_context.next = 42;
 								break;
 
-							case 31:
-								_context.prev = 31;
-								_context.t1 = _context['catch'](5);
+							case 29:
+								_context.prev = 29;
+								_context.t1 = _context['catch'](3);
 
+								if (!(pathname === '/favicon.ico')) {
+									_context.next = 41;
+									break;
+								}
+
+								faviconPath = path.resolve(__dirname, '../../logo/favicon.ico');
+								_context.t2 = this;
+								_context.t3 = req;
+								_context.t4 = res;
+								_context.next = 38;
+								return fs.stat(faviconPath);
+
+							case 38:
+								_context.t5 = _context.sent;
+								_context.t6 = faviconPath;
+								return _context.abrupt('return', _context.t2.sendFile.call(_context.t2, _context.t3, _context.t4, _context.t5, _context.t6));
+
+							case 41:
 								this.sendError(_context.t1, req, res);
 
-							case 34:
+							case 42:
 							case 'end':
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[5, 31], [14, 20]]);
+				}, _callee, this, [[3, 29], [8, 18]]);
 			}));
 
 			function handleRequest(_x, _x2) {
@@ -229,9 +256,16 @@ var Server = function () {
 			    port = _config.port,
 			    host = _config.host;
 
+			// 获取 IPv4
 
+			var IPv4 = [].concat(_toConsumableArray(new Set([].concat(_toConsumableArray(getIPv4s().map(function (ip) {
+				return ip.address;
+			})), [host]))));
+			var IPv4Str = IPv4.map(function (ip) {
+				return '  http://' + chalk.white(ip) + ':' + chalk.green(port);
+			}).join('\n');
 			server.listen(port, host, function () {
-				debug(chalk.white('http://' + chalk.yellow(host) + ':' + chalk.red(port) + ' started!'));
+				debug(chalk.yellow('Welcome to use ks-server!\nThe server is started, you can visit as:') + '\n' + IPv4Str + '\n\nYou can type ' + chalk.green('[Ctrl + C]') + ' to stop it.');
 			});
 
 			server.on('error', function (err) {

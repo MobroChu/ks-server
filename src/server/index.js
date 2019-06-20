@@ -5,13 +5,15 @@ const url = require('url');
 const path = require('path');
 const util = require('util');
 const zlib = require('zlib');
+const os = require('os');
 
 const NODE_LOG_ENV = "*"; // 设置日志输入的环境
 
 // 第三方模块
 const mime = require('mime');
 const chalk = require('chalk');	// 粉笔
-const debug = require('debug')(NODE_LOG_ENV);	// 环境变量
+// const debug = require('debug')(NODE_LOG_ENV);	// 环境变量
+const debug = console.log;
 const ejs = require('ejs');	// 模板 ejs、jade、handlebar
 const fs = require('mz/fs');
 const {readFileSync} = require('fs');
@@ -19,6 +21,19 @@ const {readFileSync} = require('fs');
 const tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
 
+const getIPv4s = () => {
+	const networkInterfaces = os.networkInterfaces();
+	const interfaces = Reflect.ownKeys(networkInterfaces);
+	let ips = [];
+	interfaces.forEach(item => {
+		Reflect.get(networkInterfaces, item).forEach(ipItem => {
+			if (ipItem.family === 'IPv4') {
+				ips.push(ipItem)
+			}
+		})
+	});
+	return ips;
+}
 class Server {
 	constructor (config) {
 		this.config = config;
@@ -33,9 +48,9 @@ class Server {
 			let statObj = await fs.stat(realPath);
 			// 如果是一个文件夹的话
 			if (statObj.isDirectory()) {
-				let indexHtml = path.join(realPath, 'index.html');
-				statObj = await fs.stat(indexHtml);
 				try {
+					let indexHtml = path.join(realPath, 'index.html');
+					statObj = await fs.stat(indexHtml);
           await fs.access(indexHtml);
 					this.sendFile(req, res, statObj, indexHtml);
 				} catch (e) {
@@ -133,8 +148,16 @@ class Server {
 		let server = http.createServer(this.handleRequest.bind(this));
 		let {port, host} = this.config;
 
+		// 获取 IPv4
+		const IPv4 = [...new Set([...getIPv4s().map(ip => ip.address), host])];
+		const IPv4Str = IPv4.map(ip => `  http://${chalk.white(ip)}:${chalk.green(port)}`).join(`\n`)
 		server.listen(port, host, function () {
-			debug(chalk.white(`http://${chalk.yellow(host)}:${chalk.red(port)} started!`));
+debug(
+`${chalk.yellow(`Welcome to use ks-server!
+The server is started, you can visit as:`)}
+${IPv4Str}
+
+You can type ${chalk.green(`[Ctrl + C]`)} to stop it.`)
 		});
 
 		server.on('error', function (err) {

@@ -9,7 +9,7 @@ var Server = require('../server/index.js');
 
 // 设置一个默认的值
 var parser = {
-	port: 3000,
+	port: 10086,
 	host: '127.0.0.1',
 	dir: process.cwd() // 为什么不能用 __dirname
 
@@ -17,7 +17,7 @@ var parser = {
 	// 奇怪了，这个绑定事件得放在 声明 argvs 之前
 };commander.on('--help', function () {
 	console.log("Usage:");
-	console.log("	ks-server -p 3000 --host localhost");
+	console.log("	ks-server -p 10086 --host localhost");
 });
 var argvs = commander.version(pkg.version).option('-p, --port <n>', 'server port').option('-o, --host <n>', 'server hostname').option('-d, --dir <n>', 'server dir').option('-e, --env <n>', 'server env').parse(process.argv);
 
