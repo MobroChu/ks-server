@@ -29,7 +29,6 @@ class Server {
 		let {dir} = this.config;
 		let {pathname} = url.parse(req.url);
 		let realPath = encodeURI(path.join(dir, pathname));
-		if (pathname === '/favicon.ico') return this.sendError('没有favicon.ico资源', req, res);
 		try {
 			let statObj = await fs.stat(realPath);
 			// 如果是一个文件夹的话
@@ -53,6 +52,11 @@ class Server {
 				this.sendFile (req, res, statObj, realPath);
 			}
 		} catch (err) {
+			// 当原项目没有 favicon.ico 时，用我默认的 favicon.ico
+			if (pathname === '/favicon.ico') {
+				let faviconPath = path.resolve(__dirname, '../../logo/favicon.ico');
+				return this.sendFile(req, res, await fs.stat(faviconPath), faviconPath);
+			}
 			this.sendError(err, req, res);
 		}
 	}
