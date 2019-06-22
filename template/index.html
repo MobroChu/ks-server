@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>目录结构</title>
+	<link rel="stylesheet" href="/static/font/iconfont.css" />
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		body {
+			color: #666;
+			padding: 10px 15px;
+			font-size: 16px;
+		}
+		.clearfix::after {
+			content: '';
+			display: block;
+			clear: both;
+		}
+		[data-type] {
+			display: inline-block;
+			margin: 0;
+			border: 1px solid #07a96d;
+			color: #07a96d;
+			border-radius: 4px;
+			background-color: transparent;
+			outline: none;
+			padding: 8px 10px;
+			cursor: pointer;
+			user-select: none;
+			text-decoration: none;
+		}
+		[data-type]:hover {
+			opacity: 0.8;
+		}
+		.about-ks-server {
+			padding: 20px 0 8px;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+		.logo {
+			width: 200px;
+			height: 52px;
+		}
+		.about-ks-server .operator {
+			float: right;
+			height: 52px;
+		}
+		.about-ks-server .operator-button {
+			margin-left: 8px;
+		}
+		.line {
+			border: 1px solid #ddd;
+			border-left-width: 0;
+			border-right-width: 0;
+		}
+		.dirs-list {
+			border: 1px solid #ddd;
+			margin: 12px auto 0;
+			padding: 20px 10px;
+			box-sizing: border-box;
+			max-width: 1022px;
+			border-radius: 4px;
+		}
+		.dirs-list li {
+			float: left;
+			width: 250px;
+			line-height: 28px;
+			padding-left: 30px;
+			padding-right: 15px;
+			position: relative;
+			box-sizing: border-box;
+		}
+		.dirs-list li .icon {
+			width: 20px;
+			height: 20px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			padding: 4px 2px;
+		}
+		.dirs-list li .icon.iconfont {
+			font-size: 20px;
+		}
+		.item-dir,
+		.item-dir a {
+			color: #07a96d;
+		}
+		.item-file,
+		.item-file a {
+			color: #666;
+		}
+		.dirs-list li a {
+			display: block;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	</style>
+</head>
+<body>
+	<div class="about-ks-server clearfix">
+		<img src="/static/new-logo.svg" alt="" class="logo" />
+		<div class="operator">
+				<!-- <a class="operator-button" id="detailList" href="javascript:;" data-type="button">显示文件详情</a> -->
+				<a class="operator-button" id="back" href="javascript:;" data-type="button">返回上级目录</a>
+		</div>
+	</div>
+	<div class="line"></div>
+	<ul class="dirs-list clearfix">
+		<% dirs.forEach(item=> { %>
+			<li class="<%= item.stat.isDirectory() ? 'item-dir' : 'item-file' %>">
+				<% if (item.stat.isDirectory()) { %>
+					<span class="icon iconfont icon-file"></span>
+				<% } else { %>
+					<span class="icon iconfont icon-file1"></span>
+				<% } %>
+				<a href="<%= item.path %>"><%= item.name %></a>
+			</li>
+		<% }) %>
+	</ul>
+	<script>
+		var oBack = document.querySelector('#back');
+		var oDetail = document.querySelector('#detailList');
+
+		oBack.onclick = function () {
+			let pathname = window.location.pathname;
+			let toGo = pathname.substr(0, pathname.lastIndexOf('/'));
+			toGo = toGo ? toGo : '/';
+			window.location.replace(toGo);
+		}
+
+		oDetail.onclick = function () {
+			
+		}
+	</script>
+</body>
+</html>
