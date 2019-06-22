@@ -32,7 +32,7 @@ var fs = require('mz/fs');
 var _require = require('fs'),
     readFileSync = _require.readFileSync;
 
-var tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
+var tmpl = readFileSync(path.join(__dirname, '../../template/index.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
 
 var getIPv4s = function getIPv4s() {
@@ -109,9 +109,12 @@ var Server = function () {
 
 								res.end(ejs.render(this.tmpl, {
 									dirs: dirs.map(function (item) {
+										var itemPath = path.join(realPath, item);
+										var itemStat = fs.statSync(itemPath);
 										return {
 											name: item,
-											path: path.join(pathname, item)
+											path: path.join(pathname, item),
+											stat: itemStat
 										};
 									})
 								}));
@@ -137,7 +140,7 @@ var Server = function () {
 									break;
 								}
 
-								faviconPath = path.resolve(__dirname, '../../logo/favicon.ico');
+								faviconPath = path.resolve(__dirname, '../../static/logo/favicon.ico');
 								_context.t2 = this;
 								_context.t3 = req;
 								_context.t4 = res;
@@ -264,7 +267,7 @@ var Server = function () {
 			var IPv4Str = IPv4.map(function (ip) {
 				return '  http://' + chalk.white(ip) + ':' + chalk.green(port);
 			}).join('\n');
-			server.listen(port, host, function () {
+			server.listen(port, function () {
 				debug(chalk.yellow('Welcome to use ks-server!\nThe server is started, you can visit as:') + '\n' + IPv4Str + '\n\nYou can type ' + chalk.green('[Ctrl + C]') + ' to stop it.');
 			});
 

@@ -10,7 +10,7 @@ var Server = require('../server/index.js');
 // 设置一个默认的值
 var parser = {
 	port: 10086,
-	host: '127.0.0.1',
+	host: 'localhost',
 	dir: process.cwd() // 为什么不能用 __dirname
 
 	// 监听一个 --help 事件，当用户输入 `my-server --help` 时，会将一下内容追加到显示的后面。

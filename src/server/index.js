@@ -18,7 +18,7 @@ const ejs = require('ejs');	// 模板 ejs、jade、handlebar
 const fs = require('mz/fs');
 const {readFileSync} = require('fs');
 
-const tmpl = readFileSync(path.join(__dirname, '../../template.html'), 'utf8');
+const tmpl = readFileSync(path.join(__dirname, '../../template/index.html'), 'utf8');
 // 注意使用 debug 前需要将 debug 的环境变量 dev 添加到系统的环境变量中去。
 
 const getIPv4s = () => {
@@ -56,10 +56,15 @@ class Server {
 				} catch (e) {
 					let dirs = await fs.readdir(realPath);
 					res.end(ejs.render(this.tmpl, {
-						dirs: dirs.map(item => ({
-							name: item,
-							path: path.join(pathname, item)
-						}))
+						dirs: dirs.map(item => {
+							const itemPath = path.join(realPath, item);
+							let itemStat = fs.statSync(itemPath)
+							return {
+								name: item,
+								path: path.join(pathname, item),
+								stat: itemStat
+							}
+						})
 					}))
 				}
 			} else {
@@ -69,7 +74,7 @@ class Server {
 		} catch (err) {
 			// 当原项目没有 favicon.ico 时，用我默认的 favicon.ico
 			if (pathname === '/favicon.ico') {
-				let faviconPath = path.resolve(__dirname, '../../logo/favicon.ico');
+				let faviconPath = path.resolve(__dirname, '../../static/logo/favicon.ico');
 				return this.sendFile(req, res, await fs.stat(faviconPath), faviconPath);
 			}
 			this.sendError(err, req, res);
@@ -151,7 +156,7 @@ class Server {
 		// 获取 IPv4
 		const IPv4 = [...new Set([...getIPv4s().map(ip => ip.address), host])];
 		const IPv4Str = IPv4.map(ip => `  http://${chalk.white(ip)}:${chalk.green(port)}`).join(`\n`)
-		server.listen(port, host, function () {
+		server.listen(port, function () {
 debug(
 `${chalk.yellow(`Welcome to use ks-server!
 The server is started, you can visit as:`)}
