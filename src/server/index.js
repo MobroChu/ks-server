@@ -3,7 +3,6 @@ const http = require('http');
 // const fs = require('fs');
 const url = require('url');
 const path = require('path');
-const util = require('util');
 const zlib = require('zlib');
 const os = require('os');
 
