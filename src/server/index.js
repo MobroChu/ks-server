@@ -73,7 +73,7 @@ class Server {
 		} catch (err) {
 			// 当原项目没有 favicon.ico 时，用我默认的 favicon.ico
 			if (pathname === '/favicon.ico') {
-				let faviconPath = path.resolve(__dirname, '../../static/logo/favicon.icoo');
+				let faviconPath = path.resolve(__dirname, '../../static/logo/favicon.ico');
 				return this.sendFile(req, res, await fs.stat(faviconPath), faviconPath);
 			}
 			this.sendError(err, req, res);

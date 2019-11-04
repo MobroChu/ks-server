@@ -15,7 +15,6 @@ var http = require('http');
 // const fs = require('fs');
 var url = require('url');
 var path = require('path');
-var util = require('util');
 var zlib = require('zlib');
 var os = require('os');
 
