@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"author": "mobro",
 	"bin": {
-		"ks-server": "./dist/bin/www.js"
+		"ks-server": "./src/bin/www.js"
 	},
 	"scripts": {
 		"babel": "babel src --out-dir dist"
